@@ -1,6 +1,6 @@
 
 const express = require('express');
-const postRoutes = require('./routes/post');
+// const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
 // const path = require('path');
 const rateLimit = require('express-rate-limit');
@@ -25,16 +25,19 @@ const limiter = rateLimit({
 
 app.use(limiter); // contre attaque brute force + ddos
 
-app.use(mongoSanitize()); // Contre NOSQL query injection
+// app.use(mongoSanitize()); // Contre NOSQL query injection
 
 app.use(helmet()); // contre attaque xss
 
 app.use(express.json());
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));
 
+require('./config/config-sequelize');
 
 // app.use('/images', express.static(path.join(__dirname, 'images')));
 
-app.use('/api/posts', postRoutes);
+// app.use('/api/posts', postRoutes);
 app.use('/api/auth', userRoutes);
 
 module.exports = app;
