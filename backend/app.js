@@ -1,12 +1,12 @@
 
 const express = require('express');
-// const postRoutes = require('./routes/post');
+const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
 // const path = require('path');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 require('dotenv').config();
-
+const sequelize = require('./config/db-connection');
 const app = express();
 
 // Middleware CORS
@@ -33,11 +33,20 @@ app.use(express.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
-require('./config/config-sequelize');
+require('./config/db-connection');
 
 // app.use('/images', express.static(path.join(__dirname, 'images')));
 
-// app.use('/api/posts', postRoutes);
+app.use('/api/posts', postRoutes);
 app.use('/api/auth', userRoutes);
+
+// sequelize
+//   .query(
+//     'SELECT * FROM Posts',
+//     { raw: true }
+//   )
+//   .then(function(toto) {
+//     console.log('toto', toto)
+//   });
 
 module.exports = app;

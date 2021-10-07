@@ -1,14 +1,19 @@
-const Sequelize = require('sequelize');
+const { Sequelize, DataTypes }  = require('sequelize');
+const sequelize = require('../config/db-connection');
 
-module.exports = sequelize.define("Post", {
+const Post = sequelize.define("Post", {
     id: {
-        type: Sequelize.INTEGER(11),
+        type: DataTypes.INTEGER,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true
     },
     content: {
-        type: Sequelize.STRING(300),
+        type: DataTypes.STRING,
         allowNull: false,
     }
-});
+
+}, {});
+
+
+module.exports = Post;

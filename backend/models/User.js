@@ -1,7 +1,9 @@
 
 const Sequelize = require('sequelize');
+const sequelize = require('../config/db-connection');
+const Post = require('./Post');
 
-module.exports = sequelize.define("User", {
+const User = sequelize.define("User", {
     id: {
         type: Sequelize.INTEGER(11),
         allowNull: false,
@@ -19,3 +21,7 @@ module.exports = sequelize.define("User", {
     }
 
 });
+User.hasMany(Post);
+Post.belongsTo(User);
+
+module.exports = User;

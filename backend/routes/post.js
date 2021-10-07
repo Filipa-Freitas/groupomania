@@ -5,16 +5,16 @@ const postCtrl = require('../controllers/post');
 const multer = require('../middleware/multer-config');
 // const sauceValidation = require('../middleware/sauce-validation');
 
-router.post('/', auth, multer, postCtrl.createPost);
+router.post('/', postCtrl.createPost);
 
-router.put('/:id', auth, multer, postCtrl.modifyPost);
+router.put('/:id', multer, postCtrl.modifyPost);
 
-router.delete('/:id', auth, postCtrl.deletePost);
+router.delete('/:id', postCtrl.deletePost);
 
-router.get('/:id', auth, postCtrl.getOnePost);
+router.get('/:id', postCtrl.getOnePost);
 
-router.get('/', auth, postCtrl.getAllPosts);
+router.get('/', postCtrl.getAllPosts);
 
-router.post('/:id/like', auth, postCtrl.handleLikesAndDislikes);
+router.post('/:id/like', postCtrl.handleLikesAndDislikes);
 
 module.exports = router;

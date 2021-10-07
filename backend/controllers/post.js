@@ -1,23 +1,32 @@
-const Sauce = require('../models/sauce');
+// const Sauce = require('../models/sauce');
 const jwt = require('jsonwebtoken');
+// const db = require('../models/index');
 // const { xssFilter } = require("../utils/security");
 const fs = require('fs');
+const Post = require('../models/Post');
 
-exports.createPost = (req, res, next) => {
-  const sauceObject = JSON.parse(req.body.sauce);
-  delete sauceObject._id;
-  const filteredData = xssFilter(sauceObject);
-  const sauce = new Sauce({
-    ...filteredData,
-    imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-    likes: 0,
-    dislikes: 0,
-    userLiked: [],
-    userDisliked: [],
-  });
-  sauce.save()
-    .then(() => res.status(201).json({ message: 'sauce enregistrée !'}))
-    .catch(error => res.status(400).json({ message: error.message }));
+exports.createPost = async (req, res, next) => {
+  // const sauceObject = JSON.parse(req.body.sauce);
+  // delete sauceObject._id;
+  // const filteredData = xssFilter(sauceObject);
+  // const sauce = new Sauce({
+  //   ...filteredData,
+  //   imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+  //   likes: 0,
+  //   dislikes: 0,
+  //   userLiked: [],
+  //   userDisliked: [],
+  // });
+  const post = await Post.create({
+    content: req.body.content
+  })
+    .then(() => res.status(201).json({message: "post créé !"}))
+    .catch(error =>  res.status(400).json({ message: error.mesage }));
+  // sauce.save()
+  //   .then(() => res.status(201).json({ message: 'sauce enregistrée !'}))
+  //   .catch(error => res.status(400).json({ message: error.message }));
+
+
 };
 
 exports.modifyPost = (req, res, next) => {
@@ -54,16 +63,21 @@ exports.deletePost = (req, res, next) => {
     .catch(error => res.status(500).json({ message: error.message }));
 };
 
-exports.getOnePost = (req, res, next) => {
-  Sauce.findOne({ _id: req.params.id })
-    .then(sauce => res.status(200).json(sauce))
-    .catch(error => res.status(404).json({ message: error.message }));
+exports.getOnePost = async (req, res, next) => {
+  // Sauce.findOne({ _id: req.params.id })
+  //   .then(sauce => res.status(200).json(sauce))
+  //   .catch(error => res.status(404).json({ message: error.message }));
 };
 
-exports.getAllPosts = (req, res, next) => {
-  Sauce.find()
-    .then(sauce => res.status(200).json(sauce))
-    .catch(error => res.status(400).json({ message: error.message }));
+exports.getAllPosts = async (req, res, next) => {
+  // Sauce.find()
+  //   .then(sauce => res.status(200).json(sauce))
+  //   .catch(error => res.status(400).json({ message: error.message }));
+  // const osef = await Post.create({ content: "tralala" });
+  
+  // console.log(osef);
+  // const posts = await Post.findAll();
+  // console.log(posts);
 };
 
 exports.handleLikesAndDislikes = (req, res, next) => {
