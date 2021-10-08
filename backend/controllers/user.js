@@ -1,19 +1,18 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-// const { xssFilter } = require("../utils/security");
+const { xssFilter } = require('../utils/security');
 require('dotenv').config();
 
 exports.signup = (req, res, next) => {
     const filteredBody = xssFilter(req.body);
     
     bcrypt.hash(filteredBody.password, 10)
-        .then(hash => {
-            const user = new User({
+        .then(async hash => {
+            const user = await User.create({
                 email: filteredBody.email,
                 password: hash
-            });
-        user.save()
+            })
             .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
             .catch(error => res.status(400).json({ message: error.message }));
         })    

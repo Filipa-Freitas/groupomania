@@ -1,10 +1,9 @@
+'use strict';
 
-const Sequelize = require('sequelize');
-const sequelize = require('../config/db-connection');
-const Post = require('./Post');
-
-const User = sequelize.define("User", {
-    id: {
+module.exports = {
+  up(queryInterface, Sequelize) {
+    return queryInterface.createTable('users', { 
+      id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
@@ -19,9 +18,10 @@ const User = sequelize.define("User", {
         type: Sequelize.STRING,
         allowNull: false
     }
+    });
+  },
 
-});
-User.hasMany(Post);
-Post.belongsTo(User);
-
-module.exports = User;
+  down(queryInterface, Sequelize) {
+    return queryInterface.dropTable('users');
+  }
+};
