@@ -1,27 +1,49 @@
 
-const Sequelize = require('sequelize');
-const sequelize = require('../config/db-connection');
-const Post = require('./Post');
+// const Sequelize = require('sequelize');
 
-const User = sequelize.define("User", {
-    id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-    },
-    password: {
-        type: Sequelize.STRING,
-        allowNull: false
+// const User = sequelize.define("User", {
+//     id: {
+//         type: Sequelize.INTEGER,
+//         allowNull: false,
+//         autoIncrement: true,
+//         primaryKey: true
+//     },
+//     email: {
+//         type: Sequelize.STRING,
+//         allowNull: false,
+//         unique: true
+//     },
+//     password: {
+//         type: Sequelize.STRING,
+//         allowNull: false
+//     }
+
+// });
+
+
+// module.exports = User;
+
+const { Model } = require('sequelize');
+const { deletePost } = require('../controllers/post');
+
+module.exports = (sequelize, DataTypes) => {
+    class User extends Model {
+        static associate(models) {
+            models.User.hasMany(models.Post, {
+                onDelete: "cascade", hooks: true
+            });
+        }
     }
-
-});
-User.hasMany(Post);
-Post.belongsTo(User);
-
-module.exports = User;
+    User.init({
+        userName: DataTypes.STRING,
+        email: DataTypes.STRING,
+        password: DataTypes.STRING,
+        profilePicture: DataTypes.STRING,
+        description: DataTypes.STRING,
+        isAdmin: DataTypes.BOOLEAN
+    }, {
+        sequelize,
+        modelName: 'User',
+    });
+    return User;
+};

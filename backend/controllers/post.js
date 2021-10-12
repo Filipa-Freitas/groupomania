@@ -1,32 +1,29 @@
-// const Sauce = require('../models/sauce');
+
 const jwt = require('jsonwebtoken');
-// const db = require('../models/index');
-// const { xssFilter } = require("../utils/security");
+const { xssFilter } = require("../utils/security");
 const fs = require('fs');
-const Post = require('../models/Post');
+const db = require('../models');
+const Post = db.Post;
+const User = db.User;
 
-exports.createPost = async (req, res, next) => {
-  // const sauceObject = JSON.parse(req.body.sauce);
-  // delete sauceObject._id;
-  // const filteredData = xssFilter(sauceObject);
-  // const sauce = new Sauce({
-  //   ...filteredData,
-  //   imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-  //   likes: 0,
-  //   dislikes: 0,
-  //   userLiked: [],
-  //   userDisliked: [],
-  // });
-  const post = await Post.create({
-    content: req.body.content
-  })
-    .then(() => res.status(201).json({message: "post créé !"}))
-    .catch(error =>  res.status(400).json({ message: error.mesage }));
-  // sauce.save()
-  //   .then(() => res.status(201).json({ message: 'sauce enregistrée !'}))
-  //   .catch(error => res.status(400).json({ message: error.message }));
-
-
+exports.createPost = (req, res, next) => {
+  User.findOne({ id: req.userId })
+    .then((user) => {
+      if (user !== null) {
+        const postObject = req.body;
+        const filteredData = xssFilter(postObject);
+        const post = new Post({
+          UserId: user.id,
+          ...filteredData,
+        });
+        post.save()
+        .then(() => res.status(201).json({message: "post créé !"}))
+        .catch(error =>  res.status(400).json({ message: error.mesage }));
+      } else {
+        return res.status(401).json({ message: error.message});
+      }
+    })
+    .catch(error => res.status(500).json({ message: error.message }));
 };
 
 exports.modifyPost = (req, res, next) => {
@@ -69,16 +66,12 @@ exports.getOnePost = async (req, res, next) => {
   //   .catch(error => res.status(404).json({ message: error.message }));
 };
 
-exports.getAllPosts = async (req, res, next) => {
-  // Sauce.find()
-  //   .then(sauce => res.status(200).json(sauce))
-  //   .catch(error => res.status(400).json({ message: error.message }));
-  // const osef = await Post.create({ content: "tralala" });
-  
-  // console.log(osef);
-  // const posts = await Post.findAll();
-  // console.log(posts);
+exports.getAllPosts = (req, res, next) => {
+  Post.findAll()
+    .then(post => res.status(200).json(post))
+    .catch(error => res.status(400).json({ message: error.message }));
 };
+
 
 exports.handleLikesAndDislikes = (req, res, next) => {
 
