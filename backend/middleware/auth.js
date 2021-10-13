@@ -9,10 +9,11 @@ module.exports = (req, res, next) => {
         if (req.body.userId && req.body.userId !== userId) {
             throw 'userId non valable !';
         } else {
-            console.log(req.body.userId);
+            console.log(userId, "auth");
             next();
         }
     } catch (error) {
+        console.log("oups");
         res.status(403).json({ message: error.message });
     }
 };

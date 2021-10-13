@@ -2,7 +2,7 @@
 const express = require('express');
 const postRoutes = require('./routes/post');
 const userRoutes = require('./routes/user');
-// const path = require('path');
+const path = require('path');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 require('dotenv').config();
@@ -40,8 +40,8 @@ db.sequelize.authenticate()
 .catch(error => console.error('Unable to connect to the database:', error));
 
 db.sequelize.sync();
-// app.use('/images', express.static(path.join(__dirname, 'images')));
 
+app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/api/posts', postRoutes);
 app.use('/api/auth', userRoutes);
 

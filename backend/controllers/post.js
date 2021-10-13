@@ -6,15 +6,28 @@ const db = require('../models');
 const Post = db.Post;
 const User = db.User;
 
+function getUserId(data) {
+  if (data.length > 1) {
+    const token = data.split(' ')[1];
+    const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);
+    const userId = decodedToken.userId;
+    return userId
+  }
+}
+
 exports.createPost = (req, res, next) => {
-  User.findOne({ id: req.userId })
-    .then((user) => {
-      if (user !== null) {
+
+  let userId = getUserId(req.headers.authorization);
+
+  User.findOne({ where: {id: userId} })
+  .then(user => {
+    if (user !== null) {
         const postObject = req.body;
         const filteredData = xssFilter(postObject);
         const post = new Post({
           UserId: user.id,
           ...filteredData,
+          // attachement: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
         });
         post.save()
         .then(() => res.status(201).json({message: "post créé !"}))
@@ -27,43 +40,58 @@ exports.createPost = (req, res, next) => {
 };
 
 exports.modifyPost = (req, res, next) => {
-  const filteredData = xssFilter(req.body.sauce);
-  const sauceObject = req.file ?
-    {
-      ...filteredData,
-      imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    } : xssFilter({ ...req.body });
+  let userId = getUserId(req.headers.authorization);
 
-  Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-    .then(() => res.status(200).json({ message: 'Sauce modifiéé !'}))
-    .catch(error => res.status(400).json({ message: error.message }));
-};
+  Post.findOne({ where: {id: req.params.id}})
+    .then(post => {
+      if (post.UserId === userId) {
+        const filteredData = xssFilter(req.body);
+        const postObject = req.file ?
+          {
+            ...filteredData,
+            attachement: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+          } : xssFilter({ ...req.body });
 
-exports.deletePost = (req, res, next) => {
-  const token = req.headers.authorization.split(' ')[1];
-  const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);
-  const userId = decodedToken.userId;
-
-  Sauce.findOne({ _id: req.params.id })
-    .then(sauce => {
-      if (sauce.userId === userId) {
-        const filename = sauce.imageUrl.split('/images/')[1];
-        fs.unlink(`images/${filename}`, () => {
-        Sauce.deleteOne({ _id: req.params.id })
-          .then(() => res.status(200).json({ message: 'Sauce supprimée !'}))
+        Post.update({ ...postObject, id: req.params.id }, { where: { id: req.params.id } })
+          .then(() => res.status(200).json({ message: 'Post modifié !'}))
           .catch(error => res.status(400).json({ message: error.message }));
-      });
       } else {
-        return res.status(401).json({ message: "Vous ne pouvez pas supprimer cette sauce !"});
+        return res.status(401).json({ message: "Vous ne pouvez pas modifier ce post !"});
       }
     })
     .catch(error => res.status(500).json({ message: error.message }));
 };
 
-exports.getOnePost = async (req, res, next) => {
-  // Sauce.findOne({ _id: req.params.id })
-  //   .then(sauce => res.status(200).json(sauce))
-  //   .catch(error => res.status(404).json({ message: error.message }));
+exports.deletePost = (req, res, next) => {
+  let userId = getUserId(req.headers.authorization);
+
+  Post.findOne({ where: {id: req.params.id} })
+    .then(post => {
+      if (post.UserId === userId) {
+        
+        if (post.attachement) {
+          const filename = sauce.imageUrl.split('/images/')[1];
+          fs.unlink(`images/${filename}`, () => {
+          Post.destroy({ where: {id: req.params.id} })
+            .then(() => res.status(200).json({ message: 'Post supprimé !'}))
+            .catch(error => res.status(400).json({ message: error.message }));
+        });
+        } else {
+          Post.destroy({ where: {id: req.params.id} })
+            .then(() => res.status(200).json({ message: 'Post supprimé !'}))
+            .catch(error => res.status(400).json({ message: error.message }));
+        }
+      } else {
+        return res.status(401).json({ message: "Vous ne pouvez pas supprimer ce post!"});
+      }
+    })
+    .catch(error => res.status(500).json({ message: error.message }));
+};
+
+exports.getOnePost = (req, res, next) => {
+  Post.findOne({ where: {id: req.params.id} })
+    .then(post => res.status(200).json(post))
+    .catch(error => res.status(404).json({ message: error.message }));
 };
 
 exports.getAllPosts = (req, res, next) => {

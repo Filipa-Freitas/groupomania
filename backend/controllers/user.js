@@ -24,7 +24,7 @@ exports.signup = (req, res, next) => {
 
 exports.login = (req, res, next) => {
     const filteredBody = xssFilter(req.body);
-    User.findOne({ email: filteredBody.email })
+    User.findOne({ where: {email: filteredBody.email} })
         .then(user => {
             if (!user) {
                 return res.status(401).json({ error: 'Utilisateur non trouvé !' });

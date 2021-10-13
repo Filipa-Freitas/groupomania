@@ -5,7 +5,7 @@ const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-config');
 // const sauceValidation = require('../middleware/sauce-validation');
 
-router.post('/', auth, postCtrl.createPost);
+router.post('/', auth, multer, postCtrl.createPost);
 
 router.put('/:id', auth, multer, postCtrl.modifyPost);
 
