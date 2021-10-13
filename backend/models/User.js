@@ -24,7 +24,6 @@
 // module.exports = User;
 
 const { Model } = require('sequelize');
-const { deletePost } = require('../controllers/post');
 
 module.exports = (sequelize, DataTypes) => {
     class User extends Model {

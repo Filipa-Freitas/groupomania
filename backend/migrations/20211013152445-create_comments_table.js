@@ -1,8 +1,10 @@
 'use strict';
 
+const { sequelize } = require("../models");
+
 module.exports = {
-  up(queryInterface, Sequelize) {
-    return queryInterface.createTable('Posts', {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('Comments', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -18,13 +20,18 @@ module.exports = {
         },
         onDelete: "CASCADE"
       },
+      postId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Posts",
+          key: "id"
+        },
+        onDelete: "CASCADE"
+      },
       content : {
         type: Sequelize.STRING,
         allowNull: false
-      },
-      attachement: {
-        type: Sequelize.STRING,
-        allowNull: true
       },
       createdAt:  {
         type: Sequelize.DATE,
@@ -37,7 +44,7 @@ module.exports = {
     })
   },
 
-  down(queryInterface, Sequelize) {
-    return queryInterface.dropTable('Posts');
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('Comments');
   }
 };
